@@ -403,6 +403,10 @@ const ECOMMERCE_ACTIONS = ['detail', 'click', 'add', 'remove', 'checkout', 'chec
 // Fields the stored data of the Synapse Tag may never fill (see addStoredData).
 const NOT_FROM_STORE = ['event', 'event_name', 'client_id', 'timestamp', 'unique_event_id', 'consent_state', '_dcid_temp'];
 let storeCache;
+// Query keys that belong to the transport, not to the event: the cache-buster,
+// the disguised-retry carrier and the rescue marker the Synapse logs count
+// (_synr=1 retry, _synr=2 pixel without the sender script).
+const TRANSPORT_KEYS = ['_r', 'ei', '_synr'];
 
 const method = getRequestMethod();
 // The disguised retry of the Synapse Tag ("ei" = base64url of "<path>?<query>")
@@ -440,6 +444,8 @@ function handle() {
     completeEvent(event);
     event.client_id = clientId;
     if (event._dcid_temp) Object.delete(event, '_dcid_temp');
+    // The Synapse Tag's rescue markers are for the logs, not for the tags.
+    if (event._syntrim !== undefined) Object.delete(event, '_syntrim');
   });
   // The names of the events, for the Synapse logs: they see the address of a
   // request but not its body, so an event posted to any path (an offline
@@ -567,8 +573,8 @@ function newEvent(base) {
 }
 
 // Query parameters become event data; "dtdc" (base64 JSON) and "dtcd" (JSON)
-// carry the packed data of a pixel. The cache-buster and the disguise carrier
-// are transport, not data.
+// carry the packed data of a pixel. TRANSPORT_KEYS (the cache-buster, the
+// disguise carrier, the rescue marker) are transport, not data.
 function queryData() {
   const query = hidden ? hidden.query : getRequestQueryParameters();
   const event = {};
@@ -577,7 +583,7 @@ function queryData() {
     if ((key === 'dtcd' || key === 'dtdc') && method === 'GET') {
       const packed = key === 'dtcd' ? JSON.parse(query[key]) : JSON.parse(fromBase64(query[key]));
       for (let inner in packed) event[inner] = packed[inner];
-    } else if (key !== '_r' && key !== 'ei') {
+    } else if (TRANSPORT_KEYS.indexOf(key) === -1) {
       event[key] = query[key];
     }
   }
@@ -1185,4 +1191,4 @@ scenarios: []
 
 ___NOTES___
 
-Synapse Client 1.2.2, 26.09.2026.
+Synapse Client 1.2.3, 26.09.2026.
