@@ -1,5 +1,5 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
-  - sha: 844aeb5c87a2938a14915b540b40695de210d3b9
-    changeNotes: Synapse Client 1.1.0, first release.
+  - sha: 35d329d198609cca34441a25254a646ff104dd07
+    changeNotes: Synapse Client 1.1.1, first release in the Gallery.
