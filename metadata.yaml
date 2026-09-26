@@ -1,5 +1,7 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
+  - sha: 4783a063c7268fdb180b360f656edd399e5eb7a8
+    changeNotes: Synapse Client 1.2.0, event names for the logs and stored user data with consent.
   - sha: 35d329d198609cca34441a25254a646ff104dd07
     changeNotes: Synapse Client 1.1.1, first release in the Gallery.
