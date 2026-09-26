@@ -1,6 +1,8 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
+  - sha: 75909ba28ed3620cfd1967c04ffb7034bcdb30ae
+    changeNotes: Synapse Client 1.2.3, rescue markers stay out of event data.
   - sha: 38e0979a0f4ad7b7886afea24c4662480b322af9
     changeNotes: Synapse Client 1.2.2, reads and keeps the readable store cookie of Synapse Tag 1.2.0, keeps JSON cookies of older tags as JSON.
   - sha: 2e6912d59804cb3d402e5a046251762a9b255e51
