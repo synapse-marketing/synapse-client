@@ -32,24 +32,24 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "CHECKBOX",
     "name": "exposeFPIDCookie",
-    "checkboxText": "Expose GA4 FPID Cookie",
+    "checkboxText": "Expose FPID Cookie",
     "simpleValueType": true,
-    "help": "The FPID cookie of the GA4 client is readable only by the server. With this option its value is also written to \u003ci\u003eFPIDP\u003c/i\u003e, which scripts in the browser can read. Use it only when a script needs it. Not written when the cookie consent settings below say no."
+    "help": "If enabled, the value of the \u003ci\u003eFPID\u003c/i\u003e cookie, which the GA4 client sets and only the server can read, is also written to the \u003ci\u003eFPIDP\u003c/i\u003e cookie, which JavaScript in the browser can read. Enable it only if a script on the site needs it. The cookie is not written when the Cookie Consent Settings below do not allow it."
   },
   {
     "type": "CHECKBOX",
     "name": "generateClientId",
-    "checkboxText": "Generate the \"client_id\" parameter and store it as the \"_dcid\" cookie",
+    "checkboxText": "Generate client_id parameter and store it as _dcid cookie",
     "simpleValueType": true,
     "defaultValue": true,
-    "help": "Every event gets a \u003ci\u003eclient_id\u003c/i\u003e, which GA4 tags need. It is taken, in this order, from the event itself, the \u003ci\u003e_dcid\u003c/i\u003e cookie, the temporary id sent by the Synapse Tag, or a new random id, and kept in \u003ci\u003e_dcid\u003c/i\u003e for two years. Not written when the cookie consent settings below say no.",
+    "help": "If enabled, every event gets a \u003ci\u003eclient_id\u003c/i\u003e, which GA4 tags need. It is taken from the event itself, from the \u003ci\u003e_dcid\u003c/i\u003e cookie, from the temporary ID sent by the Synapse Tag or, if none of these exists, newly generated, and it is stored in the \u003ci\u003e_dcid\u003c/i\u003e cookie for two years. The cookie is not written when the Cookie Consent Settings below do not allow it.",
     "subParams": [
       {
         "type": "CHECKBOX",
         "name": "httpOnlyCookie",
-        "checkboxText": "Write the \"_dcid\" cookie as HttpOnly",
+        "checkboxText": "Write the _dcid cookie as HttpOnly",
         "simpleValueType": true,
-        "help": "Scripts in the browser can then no longer read \u003ci\u003e_dcid\u003c/i\u003e.",
+        "help": "If enabled, the \u003ci\u003e_dcid\u003c/i\u003e cookie is written with the HttpOnly flag, so JavaScript in the browser cannot read it.",
         "defaultValue": false,
         "enablingConditions": [
           {
@@ -64,10 +64,10 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "CHECKBOX",
     "name": "prolongCookies",
-    "checkboxText": "Prolong Synapse Tag \"synapse\" cookie",
+    "checkboxText": "Prolong Synapse Tag cookies",
     "simpleValueType": true,
     "defaultValue": true,
-    "help": "The Synapse Tag keeps stored user data in the \u003ci\u003esynapse\u003c/i\u003e cookie. The server writes it again with a two-year lifetime, which browsers respect for server-set cookies. Not written when the cookie consent settings below say no."
+    "help": "If enabled, the \u003ci\u003esynapse\u003c/i\u003e cookie, in which the Synapse Tag keeps stored user data, is written again by the server with a lifetime of two years, so browsers that shorten cookies set by JavaScript do not delete it early. The cookie is not written when the Cookie Consent Settings below do not allow it."
   },
   {
     "type": "CHECKBOX",
@@ -75,7 +75,7 @@ ___TEMPLATE_PARAMETERS___
     "checkboxText": "Accept Multiple Events",
     "simpleValueType": true,
     "defaultValue": false,
-    "help": "A request body that is a JSON array is then processed as one event per element, for example:\u003cbr/\u003e[{\"event\":\"page_view\"}, {\"event\":\"view_item\"}]"
+    "help": "If enabled, a request body that is a JSON array is processed as a separate event for each of its elements, for example:\u003cbr/\u003e[{\"event\":\"page_view\"}, {\"event\":\"view_item\"}]"
   },
   {
     "type": "GROUP",
@@ -148,7 +148,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "responseBodyGet",
             "checkboxText": "Send Response Body for GET request",
             "simpleValueType": true,
-            "help": "By default a GET request (a pixel) is answered with a 1x1 image."
+            "help": "If enabled, a GET request (a pixel) is answered with the response body selected above instead of a 1x1 image."
           }
         ],
         "enablingConditions": [
@@ -191,7 +191,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "lookupForRedirectToParam",
             "checkboxText": "Try to find redirect destination in query params",
             "simpleValueType": true,
-            "help": "When the request has this parameter and it starts with http, the redirect goes there instead of the address above."
+            "help": "If enabled and the request has this query parameter with an address that starts with http, the redirect goes to that address instead of the one above."
           },
           {
             "type": "TEXT",
@@ -282,7 +282,7 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "newRowButtonText": "Add path",
-        "help": "Use an extra path for server-to-server events, for example offline purchases sent to \u003ci\u003e/webhook\u003c/i\u003e."
+        "help": "Paths other than \u003ci\u003e/data\u003c/i\u003e that this client should also handle, for example \u003ci\u003e/webhook\u003c/i\u003e for offline purchases sent from another server."
       }
     ]
   },
@@ -309,7 +309,7 @@ ___TEMPLATE_PARAMETERS___
         ],
         "simpleValueType": true,
         "notSetText": "Always store cookies",
-        "help": "Decides whether the client writes its cookies (_dcid, synapse, FPIDP). Events are processed either way.",
+        "help": "Decides whether this client may write its cookies (\u003ci\u003e_dcid\u003c/i\u003e, \u003ci\u003esynapse\u003c/i\u003e and \u003ci\u003eFPIDP\u003c/i\u003e). Events are processed either way.",
         "subParams": [
           {
             "type": "SELECT",
@@ -326,7 +326,7 @@ ___TEMPLATE_PARAMETERS___
               }
             ],
             "simpleValueType": true,
-            "help": "The consent type from \u003ci\u003econsent_state\u003c/i\u003e that allows the cookies. Turn on \u003ci\u003eAdd consent state\u003c/i\u003e in the Synapse Tag.",
+            "help": "The consent type in \u003ci\u003econsent_state\u003c/i\u003e that must be granted for the cookies to be written. Enable \u003ci\u003eAdd consent state\u003c/i\u003e in the Synapse Tag.",
             "valueValidators": [
               {
                 "type": "NON_EMPTY"
@@ -345,7 +345,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "cookieConsentManualValue",
             "displayName": "Consent Status Manual",
             "simpleValueType": true,
-            "help": "Usually a variable. The values 0, false and denied mean no; anything else means yes.",
+            "help": "Usually a variable. The values 0, false and denied mean that consent was refused; any other value means that it was given.",
             "enablingConditions": [
               {
                 "paramName": "cookieStorageMode",
@@ -1151,4 +1151,4 @@ scenarios: []
 
 ___NOTES___
 
-Synapse Client 1.2.0, 26.09.2026.
+Synapse Client 1.2.1, 26.09.2026.
