@@ -488,16 +488,41 @@ function addStoredData(event) {
 }
 
 function storedData() {
-  if (storeCache) return storeCache;
-  storeCache = {};
-  const text = getCookieValues(STORE_COOKIE)[0];
-  const saved = text ? JSON.parse(text) : undefined;
-  if (getType(saved) === 'object') {
-    for (let key in saved) {
-      if (saved[key] !== undefined && saved[key] !== null && saved[key] !== '') storeCache[key] = saved[key];
-    }
-  }
+  if (!storeCache) storeCache = readStored(getCookieValues(STORE_COOKIE, true)[0]);
   return storeCache;
+}
+
+// The "synapse" cookie of the Synapse Tag: readable pairs
+// ("user_id:1|email_address:21d1..."), each name and value URL-encoded on its
+// own; JSON from earlier versions is still read. Same rules as in the tag.
+function readStored(text) {
+  const out = {};
+  if (!text) return out;
+  let raw = makeString(text);
+  if (raw.charAt(0) === '{' || raw.indexOf('%7B') === 0) {
+    const saved = JSON.parse(raw.charAt(0) === '{' ? raw : decodeUriComponent(raw));
+    if (getType(saved) === 'object') {
+      for (let key in saved) {
+        if (saved[key] !== undefined && saved[key] !== null && saved[key] !== '') out[key] = saved[key];
+      }
+    }
+    return out;
+  }
+  if (raw.indexOf(':') === -1 && raw.indexOf('%3A') !== -1) raw = decodeUriComponent(raw) || '';
+  raw.split('|').forEach((pair) => {
+    const mark = pair.indexOf(':');
+    if (mark < 1) return;
+    const key = decodeUriComponent(pair.substring(0, mark));
+    const value = decodeUriComponent(pair.substring(mark + 1));
+    if (key && value) out[key] = value;
+  });
+  return out;
+}
+
+function formatStored(values) {
+  return Object.keys(values)
+    .map((key) => encodeUriComponent(key) + ':' + encodeUriComponent(makeString(values[key])))
+    .join('|');
 }
 
 function adConsent(state) {
@@ -777,8 +802,17 @@ function writeCookies(event, declined) {
     if (fpid.length) setCookie('FPIDP', fpid[0], options(false));
   }
   if (data.prolongCookies) {
-    const stored = getCookieValues(STORE_COOKIE);
-    if (stored.length) setCookie(STORE_COOKIE, stored[0], options(false));
+    // Written back in the form it came in: a Synapse Tag older than 1.2.0
+    // wrote JSON and reads only JSON, so turning its cookie into pairs here
+    // would make that tag drop what was stored. Pairs are already encoded part
+    // by part and are written as they are.
+    const raw = getCookieValues(STORE_COOKIE, true)[0];
+    const stored = storedData();
+    if (raw && Object.keys(stored).length) {
+      const json = raw.charAt(0) === '{' || raw.indexOf('%7B') === 0;
+      if (json) setCookie(STORE_COOKIE, JSON.stringify(stored), options(false));
+      else setCookie(STORE_COOKIE, formatStored(stored), options(false), true);
+    }
   }
 }
 
@@ -1151,4 +1185,4 @@ scenarios: []
 
 ___NOTES___
 
-Synapse Client 1.2.1, 26.09.2026.
+Synapse Client 1.2.2, 26.09.2026.
