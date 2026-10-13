@@ -1,6 +1,8 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
+  - sha: a4f1f278aebb7fc3fd8d95cb52768f5fced750bb
+    changeNotes: Synapse Client 1.2.4, own icon with the Synapse Client label.
   - sha: 75909ba28ed3620cfd1967c04ffb7034bcdb30ae
     changeNotes: Synapse Client 1.2.3, rescue markers stay out of event data.
   - sha: 38e0979a0f4ad7b7886afea24c4662480b322af9
