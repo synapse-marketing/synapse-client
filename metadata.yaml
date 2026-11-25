@@ -1,6 +1,8 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
+  - sha: b50ac8704248d29221566b7b72e484586e078a71
+    changeNotes: Synapse Client 1.2.5, a new 96 px icon with the Synapse Client label.
   - sha: a4f1f278aebb7fc3fd8d95cb52768f5fced750bb
     changeNotes: Synapse Client 1.2.4, own icon with the Synapse Client label.
   - sha: 75909ba28ed3620cfd1967c04ffb7034bcdb30ae
