@@ -1,6 +1,8 @@
 homepage: "https://synapse-marketing.com/"
 documentation: "https://github.com/synapse-marketing/synapse-client"
 versions:
+  - sha: c76480e7d33677a6286a027c56a487c5e4f14400
+    changeNotes: Synapse Client 1.3.0, the visitor id cookie is named _synid and its values begin with synid.1. The cookie of earlier versions is no longer read, so a returning visitor gets a new id once.
   - sha: b50ac8704248d29221566b7b72e484586e078a71
     changeNotes: Synapse Client 1.2.5, a new 96 px icon with the Synapse Client label.
   - sha: a4f1f278aebb7fc3fd8d95cb52768f5fced750bb
