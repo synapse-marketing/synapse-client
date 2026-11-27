@@ -39,17 +39,17 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "CHECKBOX",
     "name": "generateClientId",
-    "checkboxText": "Generate client_id parameter and store it as _dcid cookie",
+    "checkboxText": "Generate client_id parameter and store it as _synid cookie",
     "simpleValueType": true,
     "defaultValue": true,
-    "help": "If enabled, every event gets a \u003ci\u003eclient_id\u003c/i\u003e, which GA4 tags need. It is taken from the event itself, from the \u003ci\u003e_dcid\u003c/i\u003e cookie, from the temporary ID sent by the Synapse Tag or, if none of these exists, newly generated, and it is stored in the \u003ci\u003e_dcid\u003c/i\u003e cookie for two years. The cookie is not written when the Cookie Consent Settings below do not allow it.",
+    "help": "If enabled, every event gets a \u003ci\u003eclient_id\u003c/i\u003e, which GA4 tags need. It is taken from the event itself, from the \u003ci\u003e_synid\u003c/i\u003e cookie, from the temporary ID sent by the Synapse Tag or, if none of these exists, newly generated, and it is stored in the \u003ci\u003e_synid\u003c/i\u003e cookie for two years. The cookie is not written when the Cookie Consent Settings below do not allow it.",
     "subParams": [
       {
         "type": "CHECKBOX",
         "name": "httpOnlyCookie",
-        "checkboxText": "Write the _dcid cookie as HttpOnly",
+        "checkboxText": "Write the _synid cookie as HttpOnly",
         "simpleValueType": true,
-        "help": "If enabled, the \u003ci\u003e_dcid\u003c/i\u003e cookie is written with the HttpOnly flag, so JavaScript in the browser cannot read it.",
+        "help": "If enabled, the \u003ci\u003e_synid\u003c/i\u003e cookie is written with the HttpOnly flag, so JavaScript in the browser cannot read it.",
         "defaultValue": false,
         "enablingConditions": [
           {
@@ -309,7 +309,7 @@ ___TEMPLATE_PARAMETERS___
         ],
         "simpleValueType": true,
         "notSetText": "Always store cookies",
-        "help": "Decides whether this client may write its cookies (\u003ci\u003e_dcid\u003c/i\u003e, \u003ci\u003esynapse\u003c/i\u003e and \u003ci\u003eFPIDP\u003c/i\u003e). Events are processed either way.",
+        "help": "Decides whether this client may write its cookies (\u003ci\u003e_synid\u003c/i\u003e, \u003ci\u003esynapse\u003c/i\u003e and \u003ci\u003eFPIDP\u003c/i\u003e). Events are processed either way.",
         "subParams": [
           {
             "type": "SELECT",
@@ -395,13 +395,13 @@ const setResponseHeader = require('setResponseHeader');
 const setResponseStatus = require('setResponseStatus');
 
 const DEFAULT_PATH = '/data';
-const CLIENT_ID_COOKIE = '_dcid';
+const CLIENT_ID_COOKIE = '_synid';
 // The Synapse Tag keeps stored user data in this cookie.
 const STORE_COOKIE = 'synapse';
 const TWO_YEARS = 63072000;
 const ECOMMERCE_ACTIONS = ['detail', 'click', 'add', 'remove', 'checkout', 'checkout_option', 'purchase', 'refund'];
 // Fields the stored data of the Synapse Tag may never fill (see addStoredData).
-const NOT_FROM_STORE = ['event', 'event_name', 'client_id', 'timestamp', 'unique_event_id', 'consent_state', '_dcid_temp'];
+const NOT_FROM_STORE = ['event', 'event_name', 'client_id', 'timestamp', 'unique_event_id', 'consent_state', '_synid_temp'];
 let storeCache;
 // Query keys that belong to the transport, not to the event: the cache-buster,
 // the disguised-retry carrier and the rescue marker the Synapse logs count
@@ -443,6 +443,9 @@ function handle() {
     addStoredData(event);
     completeEvent(event);
     event.client_id = clientId;
+    if (event._synid_temp) Object.delete(event, '_synid_temp');
+    // A Synapse Tag older than 1.3.0 sends its temporary id under this name.
+    // It is never read; it only stays out of the event, so no tag passes it on.
     if (event._dcid_temp) Object.delete(event, '_dcid_temp');
     // The Synapse Tag's rescue markers are for the logs, not for the tags.
     if (event._syntrim !== undefined) Object.delete(event, '_syntrim');
@@ -760,19 +763,21 @@ function addUserData(event) {
   if (Object.keys(user).length) event.user_data = user;
 }
 
-// The id of the event, the _dcid cookie, the temporary id of the tag, or a new one.
+// The id of the event, the _synid cookie, the temporary id of the tag, or a new
+// one. The cookie of the versions before 1.3.0 had another name and other
+// values; it is never read, so its visitor gets a new id.
 function findClientId(events) {
   for (let i = 0; i < events.length; i++) {
-    const own = events[i].client_id || events[i].data_client_id || events[i]._dcid;
+    const own = events[i].client_id || events[i].data_client_id || events[i]._synid;
     if (own) return own;
   }
   const cookie = getCookieValues(CLIENT_ID_COOKIE)[0];
   if (cookie) return cookie;
   if (!data.generateClientId) return '';
   for (let i = 0; i < events.length; i++) {
-    if (events[i]._dcid_temp) return events[i]._dcid_temp;
+    if (events[i]._synid_temp) return events[i]._synid_temp;
   }
-  return 'dcid.1.' + getTimestampMillis() + '.' + generateRandom(100000000, 999999999);
+  return 'synid.1.' + getTimestampMillis() + '.' + generateRandom(100000000, 999999999);
 }
 
 /*==============================================================================
@@ -998,7 +1003,7 @@ ___SERVER_PERMISSIONS___
               },
               {
                 "type": 1,
-                "string": "_dcid"
+                "string": "_synid"
               },
               {
                 "type": 1,
@@ -1104,7 +1109,7 @@ ___SERVER_PERMISSIONS___
                 "mapValue": [
                   {
                     "type": 1,
-                    "string": "_dcid"
+                    "string": "_synid"
                   },
                   {
                     "type": 1,
@@ -1191,4 +1196,4 @@ scenarios: []
 
 ___NOTES___
 
-Synapse Client 1.2.5, 25.11.2026.
+Synapse Client 1.3.0, 27.11.2026.

@@ -6,7 +6,7 @@ server-to-server senders (for example offline purchases on an extra path such
 as /webhook) and turns them into event data for the server tags.
 
 - Pixels, POST requests with JSON or form bodies, several events per request.
-- A client id kept in the `_dcid` cookie, the `synapse` cookie of the tag
+- A client id kept in the `_synid` cookie, the `synapse` cookie of the tag
   extended, the GA4 FPID cookie copied for the browser when needed, all subject
   to the cookie consent settings.
 - What the Synapse Tag keeps in its `synapse` cookie (rows set to Store) is
